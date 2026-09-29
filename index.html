@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Mesada Simples</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16324F; --navy-light:#1F4468; --gold:#F2B705; --gold-light:#FFE28A;
+    --teal:#2D9596; --coral:#FF6B6B; --green:#3FA34D;
+    --cream:#FFFDF8; --paper:#FFF6E5; --muted:#6B7A8F;
+    --radius:20px; --shadow:0 10px 28px rgba(22,50,79,0.14);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--navy);}
+  body{font-family:'Nunito', sans-serif; color:var(--navy); display:flex; justify-content:center; min-height:100vh; min-height:100dvh;}
+  #app{width:100%; max-width:520px; background:var(--cream); min-height:100vh; min-height:100dvh; position:relative;}
+  h1,h2,h3{font-family:'Fredoka', sans-serif; margin:0;}
+  .header{background:linear-gradient(160deg, var(--navy) 0%, var(--navy-light) 100%); color:#fff; padding:18px 18px 14px; border-radius:0 0 26px 26px; position:relative;}
+  .header h1{font-size:20px; display:flex; align-items:center; gap:8px;}
+  .gear{position:absolute; top:18px; right:16px; background:rgba(255,255,255,.12); border:none; color:#fff; width:36px; height:36px; border-radius:12px; font-size:17px;}
+  .sync-badge{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; margin-top:8px;}
+  .sync-badge.on{background:rgba(63,163,77,.25); color:#c9f0cf;}
+  .sync-badge.off{background:rgba(255,255,255,.12); color:rgba(255,255,255,.75);}
+  .kid-switcher{display:flex; gap:10px; margin-top:14px;}
+  .kid-pill{flex:1; display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.08); border:2px solid transparent; border-radius:16px; padding:8px 10px; cursor:pointer;}
+  .kid-pill.active{background:#fff; border-color:var(--gold);}
+  .kid-pill .av{width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:17px; flex:none;}
+  .kid-pill .nm{font-weight:800; font-size:13px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .kid-pill.active .nm{color:var(--navy);}
+  .content{padding:16px 16px 28px;}
+  .card{background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:14px;}
+  .card h3{font-size:14.5px; margin-bottom:10px;}
+  .balance-card{background:linear-gradient(135deg, var(--teal), #1f6d6d); color:#fff; text-align:center; padding:20px;}
+  .balance-card .lbl{font-size:13px; font-weight:700; opacity:.85;}
+  .balance-card .amt{font-family:'JetBrains Mono',monospace; font-size:36px; font-weight:700; margin-top:4px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .quick{background:var(--paper); border:none; border-radius:16px; padding:14px 8px; text-align:center; cursor:pointer;}
+  .quick .ic{font-size:24px; display:block; margin-bottom:4px;}
+  .quick .lb{font-weight:800; font-size:12.5px; display:block;}
+  .quick .vl{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11.5px; color:var(--teal); display:block; margin-top:2px;}
+  button{font-family:'Nunito', sans-serif; font-weight:800; border:none; cursor:pointer; border-radius:14px; padding:12px 16px; font-size:14px;}
+  .btn-outline{background:#fff; color:var(--navy); border:2px solid var(--navy); width:100%;}
+  .btn-gold{background:var(--gold); color:#5c4400; width:100%;}
+  .btn-danger{background:#fff; color:var(--coral); border:2px solid var(--coral); width:100%;}
+  .btn-sm{padding:8px 12px; font-size:12.5px; border-radius:10px; width:auto;}
+  label{font-size:12.5px; font-weight:800; color:var(--muted); display:block; margin:10px 0 4px;}
+  input[type=text], input[type=number]{width:100%; padding:11px 12px; border-radius:12px; border:2px solid #ECE8DC; font-family:'Nunito',sans-serif; font-size:14.5px; font-weight:700; color:var(--navy); background:var(--paper);}
+  .row{display:flex; gap:10px;}
+  .row > *{flex:1;}
+  .hist-item{display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid #F0EEE6; font-size:13px;}
+  .hist-item:last-child{border-bottom:none;}
+  .hist-item .d{color:var(--muted); font-size:11px;}
+  .hist-item .v{font-family:'JetBrains Mono',monospace; font-weight:800;}
+  .v.pos{color:var(--green);} .v.neg{color:var(--coral);}
+  .tiny-btn{background:none; border:none; color:var(--coral); font-weight:800; font-size:12px; padding:4px 8px;}
+  .empty{text-align:center; color:var(--muted); font-size:13px; font-weight:700; padding:10px 0;}
+  .footnote{font-size:11.5px; color:var(--muted); font-weight:700; margin-top:6px; line-height:1.5;}
+  .overlay{position:fixed; inset:0; background:rgba(22,50,79,.55); display:flex; align-items:flex-end; z-index:50;}
+  .sheet{background:var(--cream); width:100%; max-width:520px; margin:0 auto; border-radius:24px 24px 0 0; padding:18px; max-height:88vh; overflow-y:auto;}
+  .sheet-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+  .close-x{background:var(--paper); border:none; width:32px; height:32px; border-radius:10px; font-size:15px;}
+  .emoji-pick{display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;}
+  .emoji-pick span{font-size:19px; padding:6px; border-radius:10px; border:2px solid transparent; cursor:pointer;}
+  .emoji-pick span.sel{border-color:var(--navy); background:var(--paper);}
+  .section-title{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:800; margin:16px 0 6px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+function pad(n){return n<10?'0'+n:''+n;}
+function toDateStr(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;}
+function toMonthKey(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}`;}
+function firstOfMonth(d){return new Date(d.getFullYear(), d.getMonth(), 1);}
+function firstOfNextMonth(d){return new Date(d.getFullYear(), d.getMonth()+1, 1);}
+function fmtShort(d){return `${pad(d.getDate())}/${pad(d.getMonth()+1)}`;}
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function monthName(key){const [y,m]=key.split('-').map(Number); return `${MESES[m-1]} de ${y}`;}
+function brl(v){const s=(Math.round(v*100)/100).toFixed(2).replace('.',','); return `R$ ${s}`;}
+function todayStr(){return toDateStr(new Date());}
+function esc(s){return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function randomId(){ return Math.random().toString(36).slice(2,10); }
+
+const STORAGE_KEY='mesadaSimplesV1';
+function defaultState(){
+  const now=new Date();
+  return {
+    settings:{ valuePerAgeYear:10, bookValue:10, englishEpisodeValue:3, choreValue:1, gradeTiers:[{min:80,value:5},{min:90,value:15},{min:100,value:20}] },
+    kids:[
+      {id:'k'+randomId(), name:'Filho(a) 1', age:10, emoji:'⚽', currentMonthKey:toMonthKey(now), history:[]},
+      {id:'k'+randomId(), name:'Filho(a) 2', age:10, emoji:'🥷', currentMonthKey:toMonthKey(now), history:[]}
+    ]
+  };
+}
+function migrateFromComplexApp(){
+  try{
+    const raw=localStorage.getItem('mesadaInteligenteV3');
+    if(!raw) return null;
+    const old=JSON.parse(raw);
+    if(!old.kids || !old.kids.length) return null;
+    const now=new Date();
+    return {
+      settings:{
+        valuePerAgeYear:(old.settings&&old.settings.valuePerAgeYear)||10,
+        bookValue:10, englishEpisodeValue:3, choreValue:1,
+        gradeTiers:[{min:80,value:5},{min:90,value:15},{min:100,value:20}]
+      },
+      kids: old.kids.map(k=>{
+        const bal=(k.history||[]).reduce((s,h)=>s+(h.value||0),0);
+        const hist=[];
+        if(Math.round(bal*100)!==0) hist.push({id:randomId(), date:todayStr(), label:'Saldo trazido do app anterior', value:bal});
+        return {id:k.id||('k'+randomId()), name:k.name||'Filho(a)', age:k.age||10, emoji:(k.emoji&&k.emoji.length<=4)?k.emoji:'⚽', currentMonthKey:toMonthKey(now), history:hist};
+      })
+    };
+  }catch(e){ return null; }
+}
+function migrate(s){
+  s.settings ??= {};
+  s.settings.valuePerAgeYear ??= 10;
+  s.settings.bookValue ??= 10;
+  s.settings.englishEpisodeValue ??= 3;
+  s.settings.choreValue ??= 1;
+  s.settings.gradeTiers ??= [{min:80,value:5},{min:90,value:15},{min:100,value:20}];
+  const now=new Date();
+  (s.kids||[]).forEach(k=>{
+    k.age ??= 10; k.emoji ??= '⚽'; k.history ??= [];
+    k.currentMonthKey ??= toMonthKey(now);
+    k.history.forEach(h=>{ h.id ??= randomId(); });
+  });
+  return s;
+}
+let state=load();
+function load(){
+  try{ const raw=localStorage.getItem(STORAGE_KEY); if(raw) return migrate(JSON.parse(raw)); }catch(e){}
+  const migrated=migrateFromComplexApp();
+  if(migrated) return migrate(migrated);
+  return defaultState();
+}
+function save(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ alert('Não consegui salvar os dados neste navegador.'); }
+  pushToJsonbin();
+}
+
+let activeKid=0, settingsOpen=false;
+function balance(kid){ return kid.history.reduce((s,h)=>s+h.value,0); }
+function fixedAllowance(kid){ return (kid.age||0)*state.settings.valuePerAgeYear; }
+function calcGradeBonus(score){
+  let val=0; const tiers=[...state.settings.gradeTiers].sort((a,b)=>a.min-b.min);
+  for(const t of tiers){ if(score>=t.min) val=t.value; } return val;
+}
+
+/* ---------- cloud sync (JSONBin.io) ---------- */
+const JSONBIN_CFG_KEY='mesadaSimplesJsonbinConfig';
+let cloudConnected=false, cloudConnecting=false, jsonbinPollTimer=null;
+function loadJsonbinConfig(){ try{ return JSON.parse(localStorage.getItem(JSONBIN_CFG_KEY)||'null'); }catch(e){ return null; } }
+function saveJsonbinConfig(cfg){ try{ localStorage.setItem(JSONBIN_CFG_KEY, JSON.stringify(cfg)); }catch(e){} }
+function clearJsonbinConfig(){ try{ localStorage.removeItem(JSONBIN_CFG_KEY); }catch(e){} }
+function ensureMeta(){ state._meta=state._meta||{}; state._meta.updatedAt=Date.now(); }
+function pushToJsonbin(){
+  const cfg=loadJsonbinConfig(); if(!cfg||!cfg.apiKey||!cfg.binId) return;
+  ensureMeta();
+  fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}`, { method:'PUT', headers:{'Content-Type':'application/json','X-Master-Key':cfg.apiKey}, body:JSON.stringify(state) })
+    .catch(e=>console.error('Falha ao enviar para a nuvem', e));
+}
+function pollJsonbin(){
+  const cfg=loadJsonbinConfig(); if(!cfg||!cfg.apiKey||!cfg.binId) return;
+  fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, { headers:{'X-Master-Key':cfg.apiKey} })
+    .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)))
+    .then(data=>{
+      const remote=data.record;
+      if(remote && remote._meta && (!state._meta || remote._meta.updatedAt>state._meta.updatedAt)){
+        state=migrate(remote);
+        try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+        render();
+      }
+      cloudConnected=true;
+    }).catch(e=>console.error('Falha ao verificar a nuvem', e));
+}
+function startJsonbinPolling(){ if(jsonbinPollTimer) clearInterval(jsonbinPollTimer); jsonbinPollTimer=setInterval(pollJsonbin,15000); }
+function stopJsonbinPolling(){ if(jsonbinPollTimer){ clearInterval(jsonbinPollTimer); jsonbinPollTimer=null; } }
+function tryAutoConnectCloud(){
+  const cfg=loadJsonbinConfig(); if(!cfg||!cfg.apiKey||!cfg.binId) return;
+  cloudConnected=true; startJsonbinPolling(); pollJsonbin();
+}
+function connectCloudFromForm(){
+  const apiKey=document.getElementById('jb-apiKey').value.trim();
+  let binId=document.getElementById('jb-binId').value.trim();
+  if(!apiKey){ alert('Cole sua API Key (X-Master-Key) do JSONBin.io.'); return; }
+  cloudConnecting=true; render();
+  const headers={'Content-Type':'application/json','X-Master-Key':apiKey};
+  if(!binId){
+    fetch('https://api.jsonbin.io/v3/b', {method:'POST', headers, body:JSON.stringify(state)})
+      .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status+' — confira a API Key')))
+      .then(data=>finishJsonbinConnect(apiKey,data.metadata.id,null))
+      .catch(err=>{ cloudConnecting=false; render(); alert('Não consegui criar o bin: '+err.message); });
+  } else {
+    fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {headers:{'X-Master-Key':apiKey}})
+      .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status+' — confira o Bin ID e a API Key')))
+      .then(data=>finishJsonbinConnect(apiKey,binId,data.record))
+      .catch(err=>{ cloudConnecting=false; render(); alert('Não consegui conectar: '+err.message); });
+  }
+}
+function finishJsonbinConnect(apiKey,binId,remote){
+  if(remote){
+    const useRemote=confirm('Encontrei dados salvos nesse bin. Toque OK para usar os dados da nuvem neste aparelho (recomendado a partir do 2º aparelho), ou Cancelar para manter os dados deste aparelho e substituir os da nuvem.');
+    if(useRemote){ state=migrate(remote); }
+  }
+  saveJsonbinConfig({apiKey,binId});
+  cloudConnected=true; cloudConnecting=false;
+  save(); startJsonbinPolling(); render();
+  alert('Conectado!\n\nBin ID: '+binId+'\n\nUse esse MESMO Bin ID e a MESMA API Key nos outros aparelhos.');
+}
+function disconnectCloud(){
+  if(!confirm('Desconectar da nuvem? Este aparelho volta a guardar os dados só localmente.')) return;
+  stopJsonbinPolling(); cloudConnected=false; clearJsonbinConfig(); render();
+}
+
+/* ---------- actions ---------- */
+function addEntry(kidId, label, value){
+  const kid=state.kids.find(k=>k.id===kidId); if(!kid) return;
+  kid.history.push({id:randomId(), date:todayStr(), label, value});
+  save(); render();
+}
+function quickBook(kidId){ addEntry(kidId, 'Livro lido', state.settings.bookValue); }
+function quickEnglish(kidId){ addEntry(kidId, 'Episódio em inglês', state.settings.englishEpisodeValue); }
+function quickChore(kidId){ addEntry(kidId, 'Lavou a louça', state.settings.choreValue); }
+function quickGrade(kidId){
+  const score=parseFloat(prompt('Nota da prova, em % de acerto (ex: 90):'));
+  if(isNaN(score)) return;
+  const bonus=calcGradeBonus(score);
+  addEntry(kidId, `Nota de prova: ${score}%`, bonus);
+}
+function addCustom(kidId){
+  const note=document.getElementById('cx-note').value.trim()||'Outro valor';
+  const val=parseFloat(document.getElementById('cx-value').value);
+  if(isNaN(val)){ alert('Digite um valor.'); return; }
+  addEntry(kidId, note, val);
+  document.getElementById('cx-note').value=''; document.getElementById('cx-value').value='';
+}
+function deleteEntry(kidId, entryId){
+  const kid=state.kids.find(k=>k.id===kidId); if(!kid) return;
+  if(!confirm('Excluir este lançamento?')) return;
+  kid.history=kid.history.filter(h=>h.id!==entryId);
+  save(); render();
+}
+function closeMonth(kidId){
+  const kid=state.kids.find(k=>k.id===kidId); if(!kid) return;
+  const amount=fixedAllowance(kid);
+  if(!confirm(`Fechar ${monthName(kid.currentMonthKey)} e somar ${brl(amount)} de mesada fixa (${kid.age} anos × ${brl(state.settings.valuePerAgeYear)})?`)) return;
+  kid.history.push({id:randomId(), date:todayStr(), label:`Mesada fixa — ${monthName(kid.currentMonthKey)}`, value:amount});
+  const [y,m]=kid.currentMonthKey.split('-').map(Number);
+  kid.currentMonthKey=toMonthKey(new Date(y,m,1));
+  save(); render();
+}
+
+/* ---------- settings actions ---------- */
+function updateSetting(key,val){ state.settings[key]=parseFloat(val)||0; save(); render(); }
+function updateTier(i,field,val){ state.settings.gradeTiers[i][field]=parseFloat(val)||0; save(); }
+function updateKidName(id,val){ const k=state.kids.find(k=>k.id===id); k.name=val||k.name; save(); render(); }
+function updateKidAge(id,val){ const k=state.kids.find(k=>k.id===id); k.age=parseInt(val)||0; save(); render(); }
+function updateKidEmoji(id,emoji){ const k=state.kids.find(k=>k.id===id); k.emoji=emoji; save(); render(); }
+function addKid(){ const now=new Date(); state.kids.push({id:'k'+randomId(), name:'Novo(a) filho(a)', age:10, emoji:'🎮', currentMonthKey:toMonthKey(now), history:[]}); save(); render(); }
+function removeKid(id){
+  if(state.kids.length<=1){ alert('Deixe pelo menos um filho cadastrado.'); return; }
+  if(!confirm('Remover este perfil e todo o histórico dele?')) return;
+  state.kids=state.kids.filter(k=>k.id!==id);
+  if(activeKid>=state.kids.length) activeKid=0;
+  save(); render();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='mesada-simples-backup.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+function importData(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{ const data=JSON.parse(e.target.result); if(!data.kids) throw new Error();
+      state=migrate(data); activeKid=0; save(); render(); alert('Dados importados com sucesso!');
+    }catch(err){ alert('Não consegui ler esse arquivo.'); }
+  };
+  reader.readAsText(file);
+}
+function resetAll(){
+  if(!confirm('Isso vai apagar TODOS os dados. Tem certeza?')) return;
+  if(!confirm('Última confirmação: apagar tudo mesmo?')) return;
+  state=defaultState(); activeKid=0; save(); render();
+}
+function switchKid(i){ activeKid=i; render(); }
+function openSettings(){ settingsOpen=true; render(); }
+function closeSettings(){ settingsOpen=false; render(); }
+
+/* ---------- render ---------- */
+function render(){
+  const kid=state.kids[activeKid]||state.kids[0];
+  const app=document.getElementById('app');
+  const recent=kid.history.filter(h=>h.date>=firstOfMonthStr()).slice(-10).reverse();
+  app.innerHTML=`
+    <div class="header">
+      <button class="gear" onclick="openSettings()">⚙️</button>
+      <h1>💰 Mesada Simples</h1>
+      <div class="sync-badge ${cloudConnected?'on':'off'}">${cloudConnected?'☁️ Sincronizado':'📴 Só neste aparelho'}</div>
+      <div class="kid-switcher">
+        ${state.kids.map((k,i)=>`
+          <div class="kid-pill ${i===activeKid?'active':''}" onclick="switchKid(${i})">
+            <div class="av">${k.emoji}</div>
+            <div class="nm">${esc(k.name)}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="content">
+      <div class="card balance-card">
+        <div class="lbl">Saldo de ${esc(kid.name)}</div>
+        <div class="amt">${brl(balance(kid))}</div>
+      </div>
+      <div class="card">
+        <h3>Registrar</h3>
+        <div class="grid2">
+          <button class="quick" onclick="quickBook('${kid.id}')"><span class="ic">📖</span><span class="lb">Livro lido</span><span class="vl">+${brl(state.settings.bookValue)}</span></button>
+          <button class="quick" onclick="quickEnglish('${kid.id}')"><span class="ic">🇬🇧</span><span class="lb">Episódio inglês</span><span class="vl">+${brl(state.settings.englishEpisodeValue)}</span></button>
+          <button class="quick" onclick="quickGrade('${kid.id}')"><span class="ic">📝</span><span class="lb">Nota de prova</span><span class="vl">calcula</span></button>
+          <button class="quick" onclick="quickChore('${kid.id}')"><span class="ic">🍽️</span><span class="lb">Lavou a louça</span><span class="vl">+${brl(state.settings.choreValue)}</span></button>
+        </div>
+        <div class="section-title">Outro valor</div>
+        <div class="row">
+          <input type="text" id="cx-note" placeholder="Motivo">
+          <input type="number" id="cx-value" step="0.5" placeholder="+5 ou -5" style="max-width:110px;">
+        </div>
+        <div style="margin-top:8px;"><button class="btn-outline" onclick="addCustom('${kid.id}')">Adicionar</button></div>
+      </div>
+      <div class="card">
+        <h3>📅 Mesada de ${monthName(kid.currentMonthKey)}</h3>
+        <div class="footnote" style="margin-top:0;">${kid.age} anos × ${brl(state.settings.valuePerAgeYear)} = ${brl(fixedAllowance(kid))} por mês.</div>
+        <div style="margin-top:10px;"><button class="btn-gold" onclick="closeMonth('${kid.id}')">Fechar mês e somar ${brl(fixedAllowance(kid))}</button></div>
+      </div>
+      <div class="card">
+        <h3>Lançamentos de ${monthName(kid.currentMonthKey)}</h3>
+        ${recent.length===0?'<div class="empty">Nada neste mês ainda.</div>':recent.map(h=>`
+          <div class="hist-item">
+            <div><div>${esc(h.label)}</div><div class="d">${fmtShort(new Date(h.date+'T00:00:00'))}</div></div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div class="v ${h.value>=0?'pos':'neg'}">${h.value>=0?'+':''}${brl(h.value)}</div>
+              <button class="tiny-btn" onclick="deleteEntry('${kid.id}','${h.id}')">🗑️</button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+    ${settingsOpen?renderSettingsSheet(kid):''}
+  `;
+  function firstOfMonthStr(){ return kid.currentMonthKey+'-01'; }
+}
+
+function renderSettingsSheet(kid){
+  return `
+  <div class="overlay" onclick="if(event.target===this) closeSettings()">
+    <div class="sheet">
+      <div class="sheet-head"><h3>⚙️ Ajustes</h3><button class="close-x" onclick="closeSettings()">✕</button></div>
+
+      <div class="section-title">Filhos</div>
+      ${state.kids.map(k=>`
+        <div class="row" style="margin-bottom:8px;">
+          <input type="text" value="${esc(k.name)}" onchange="updateKidName('${k.id}', this.value)">
+          <input type="number" value="${k.age}" style="max-width:70px;" onchange="updateKidAge('${k.id}', this.value)">
+          <button class="tiny-btn" onclick="removeKid('${k.id}')">remover</button>
+        </div>
+        <div class="emoji-pick">${['⚽','🏎️','🥷','🐉','🦸','🎮','🚀','🏀','🎸','🎨'].map(e=>`<span class="${e===k.emoji?'sel':''}" onclick="updateKidEmoji('${k.id}','${e}')">${e}</span>`).join('')}</div>
+      `).join('<hr style="border:none;border-top:1px solid #F0EEE6;margin:10px 0;">')}
+      <div style="margin-top:10px;"><button class="btn-outline btn-sm" onclick="addKid()">+ adicionar filho(a)</button></div>
+
+      <div class="section-title">Valores</div>
+      <label>Mesada fixa: valor por ano de idade</label>
+      <input type="number" step="0.5" value="${state.settings.valuePerAgeYear}" onchange="updateSetting('valuePerAgeYear', this.value)">
+      <label>Livro lido</label>
+      <input type="number" step="0.5" value="${state.settings.bookValue}" onchange="updateSetting('bookValue', this.value)">
+      <label>Episódio em inglês</label>
+      <input type="number" step="0.5" value="${state.settings.englishEpisodeValue}" onchange="updateSetting('englishEpisodeValue', this.value)">
+      <label>Lavar louça</label>
+      <input type="number" step="0.5" value="${state.settings.choreValue}" onchange="updateSetting('choreValue', this.value)">
+      <label>Faixas de nota (a partir de X% → R$)</label>
+      ${state.settings.gradeTiers.map((t,i)=>`
+        <div class="row" style="margin-bottom:6px;">
+          <input type="number" value="${t.min}" onchange="updateTier(${i},'min',this.value)">
+          <input type="number" value="${t.value}" onchange="updateTier(${i},'value',this.value)">
+        </div>`).join('')}
+
+      <div class="section-title">☁️ Sincronização em nuvem</div>
+      ${cloudConnected?`
+        <div class="footnote" style="margin-top:0;">Conectado — sincroniza com todos os aparelhos que usarem a mesma API Key e Bin ID.</div>
+        <div style="margin-top:8px;"><button class="btn-outline" onclick="disconnectCloud()">Desconectar</button></div>
+      `:`
+        <div class="footnote" style="margin-top:0;">Crie conta grátis em jsonbin.io, copie a API Key (X-Master-Key) e cole abaixo.</div>
+        <label>API Key</label><input type="text" id="jb-apiKey" placeholder="$2a$10$....">
+        <label>Bin ID (deixe vazio só no 1º aparelho)</label><input type="text" id="jb-binId" placeholder="Ex: 65fabc...">
+        <div style="margin-top:8px;"><button class="btn-gold" onclick="connectCloudFromForm()" ${cloudConnecting?'disabled':''}>${cloudConnecting?'Conectando...':'Conectar'}</button></div>
+      `}
+
+      <div class="section-title">Backup</div>
+      <div class="row">
+        <button class="btn-outline" onclick="exportData()">Exportar</button>
+        <label class="btn-outline" style="text-align:center; display:flex; align-items:center; justify-content:center;">
+          Importar<input type="file" accept="application/json" style="display:none" onchange="importData(this)">
+        </label>
+      </div>
+
+      <div class="section-title">Zona de risco</div>
+      <button class="btn-danger" onclick="resetAll()">Apagar tudo e recomeçar</button>
+    </div>
+  </div>`;
+}
+
+render();
+tryAutoConnectCloud();
+</script>
+</body>
+</html>
